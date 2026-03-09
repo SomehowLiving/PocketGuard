@@ -24,16 +24,18 @@ app.use((req, _res, next) => {
   next();
 });
 
-app.use(
-  cors({
-    origin: [
-      "http://localhost:5173",
-      "http://127.0.0.1:5173"
-    ],
-    methods: ["GET", "POST", "OPTIONS"],
-    allowedHeaders: ["Content-Type"]
-  })
-);
+// app.use(
+//   cors({
+//     origin: [
+//       "http://localhost:5173",
+//       "http://127.0.0.1:5173",
+//       "https://id-preview--75652319-5a64-44e8-9ac9-2dca146d2276.lovable.app"
+//     ],
+//     methods: ["GET", "POST", "OPTIONS"],
+//     allowedHeaders: ["Content-Type"]
+//   })
+// );
+app.use(cors({ origin: true }));
 
 app.use(express.json());
 

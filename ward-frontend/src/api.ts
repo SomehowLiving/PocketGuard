@@ -1,7 +1,12 @@
 import { ethers } from 'ethers';
 import { API } from "./routes";
 
-// const BASE_URL = 'http://localhost:3001';
+// Shared fetch wrapper that adds ngrok headers to bypass the browser warning page
+function apiFetch(url: string, init?: RequestInit): Promise<Response> {
+  const headers = new Headers(init?.headers);
+  headers.set('ngrok-skip-browser-warning', 'true');
+  return fetch(url, { ...init, headers });
+}
 
 function extractApiError(payload: any, fallback: string): string {
     const error = payload?.error;
@@ -12,7 +17,6 @@ function extractApiError(payload: any, fallback: string): string {
     return fallback;
 }
 
-// Types
 export interface Pocket {
     address: string;
     owner?: string;
@@ -88,7 +92,7 @@ export interface PocketAssetsResponse {
 
 // API Functions
 export async function createPocket(params: CreatePocketParams): Promise<{ pocket: string }> {
-    const res = await fetch(API.pocket.create, {
+    const res = await apiFetch(API.pocket.create, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(params),
@@ -107,38 +111,38 @@ export async function createPocket(params: CreatePocketParams): Promise<{ pocket
 }
 
 export async function getPocket(address: string): Promise<Pocket> {
-    const res = await fetch(API.pocket.get(address));
+    const res = await apiFetch(API.pocket.get(address));
     if (!res.ok) throw new Error('Failed to get pocket');
     return res.json();
 }
 
 export async function getPocketNextNonce(address: string): Promise<number> {
-    const res = await fetch(API.pocket.nextNonce(address));
+    const res = await apiFetch(API.pocket.nextNonce(address));
     if (!res.ok) throw new Error('Failed to get pocket next nonce');
     const body = await res.json();
     return Number(body.nextNonce);
 }
 
 export async function getPocketAssets(address: string): Promise<PocketAssetsResponse> {
-    const res = await fetch(API.pocket.assets(address));
+    const res = await apiFetch(API.pocket.assets(address));
     if (!res.ok) throw new Error('Failed to get pocket assets');
     return res.json();
 }
 
 export async function listUserPockets(userAddress: string): Promise<{ pockets: Pocket[] }> {
-    const res = await fetch(API.pocket.listByUser(userAddress));
+    const res = await apiFetch(API.pocket.listByUser(userAddress));
     if (!res.ok) throw new Error('Failed to list pockets');
     return res.json();
 }
 
 export async function getControllerPocket(address: string): Promise<{ address: string; valid: boolean; owner: string }> {
-    const res = await fetch(API.controller.pocketInfo(address));
+    const res = await apiFetch(API.controller.pocketInfo(address));
     if (!res.ok) throw new Error('Failed to get controller pocket');
     return res.json();
 }
 
 export async function executePocket(params: ExecuteParams): Promise<{ status: string; txHash: string; gasUsed: string }> {
-    const res = await fetch(API.pocket.exec, {
+    const res = await apiFetch(API.pocket.exec, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(params),
@@ -151,7 +155,7 @@ export async function executePocket(params: ExecuteParams): Promise<{ status: st
 }
 
 export async function burnPocket(params: BurnParams): Promise<{ status: string; txHash: string }> {
-    const res = await fetch(API.pocket.burn, {
+    const res = await apiFetch(API.pocket.burn, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(params),
@@ -164,7 +168,7 @@ export async function burnPocket(params: BurnParams): Promise<{ status: string; 
 }
 
 export async function sweepPocket(params: SweepParams): Promise<{ txHash: string }> {
-    const res = await fetch(API.pocket.sweep, {
+    const res = await apiFetch(API.pocket.sweep, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(params),
@@ -177,7 +181,7 @@ export async function sweepPocket(params: SweepParams): Promise<{ txHash: string
 }
 
 export async function simulateExecution(params: ExecuteParams): Promise<{ ok: boolean; error?: any }> {
-    const res = await fetch(API.pocket.simulate, {
+    const res = await apiFetch(API.pocket.simulate, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(params),
@@ -186,7 +190,7 @@ export async function simulateExecution(params: ExecuteParams): Promise<{ ok: bo
 }
 
 export async function estimateGas(params: ExecuteParams): Promise<{ gas: string }> {
-    const res = await fetch(API.pocket.gas, {
+    const res = await apiFetch(API.pocket.gas, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(params),
@@ -206,7 +210,7 @@ export async function calculateFee(amount: string, tokenAddress: string): Promis
     net: string;
     netFormatted: string;
 }> {
-    const res = await fetch(API.pocket.fee, {
+    const res = await apiFetch(API.pocket.fee, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount, tokenAddress }),
@@ -226,7 +230,7 @@ export async function verifyExecIntent(params: {
     expiry: number;
     signature: string;
 }): Promise<{ valid: boolean; reason?: string }> {
-    const res = await fetch(API.verify.execIntent, {
+    const res = await apiFetch(API.verify.execIntent, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(params),
@@ -235,7 +239,7 @@ export async function verifyExecIntent(params: {
 }
 
 export async function classifyRisk(tokenAddress: string, simulate?: boolean): Promise<RiskTier> {
-    const res = await fetch(API.risk.classify, {
+    const res = await apiFetch(API.risk.classify, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tokenAddress, simulate }),
@@ -245,7 +249,7 @@ export async function classifyRisk(tokenAddress: string, simulate?: boolean): Pr
 }
 
 export async function simulateRisk(pocketAddress: string, target: string, data: string): Promise<{ success: boolean; gasUsed: number; error?: string }> {
-    const res = await fetch(API.risk.simulate, {
+    const res = await apiFetch(API.risk.simulate, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pocketAddress, target, data }),
@@ -254,13 +258,13 @@ export async function simulateRisk(pocketAddress: string, target: string, data: 
 }
 
 export async function getTokenMetadata(address: string): Promise<TokenMetadata> {
-    const res = await fetch(API.token.info(address));
+    const res = await apiFetch(API.token.info(address));
     if (!res.ok) throw new Error('Failed to get token metadata');
     return res.json();
 }
 
 export async function decodeCalldata(data: string): Promise<CalldataDecode> {
-    const res = await fetch(API.pocket.decodeCalldata, {
+    const res = await apiFetch(API.pocket.decodeCalldata, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ data }),
@@ -274,8 +278,8 @@ export function getExecTypedData(
     pocket: string,
     target: string,
     dataHash: string,
-    nonce: number,
-    expiry: number,
+    nonce: bigint,
+    expiry: bigint,
     chainId: number
 ) {
     return {
@@ -327,12 +331,12 @@ export async function signExecIntent(
     pocket: string,
     target: string,
     data: string,
-    nonce: BigInt,
-    expiry: BigInt,
+    nonce: number | bigint,
+    expiry: number | bigint,
     chainId: number
 ): Promise<string> {
     const dataHash = ethers.keccak256(data);
-    const typedData = getExecTypedData(pocket, target, dataHash, BigInt(nonce), BigInt(expiry), chainId);
+    const typedData = getExecTypedData(pocket, target, dataHash, BigInt(nonce as number), BigInt(expiry as number), chainId);
     return signer.signTypedData(typedData.domain, typedData.types, typedData.value);
 }
 
@@ -347,17 +351,12 @@ export async function signBurnIntent(
     return signer.signTypedData(typedData.domain, typedData.types, typedData.value);
 }
 
-// Calldata generation
 export function encodeApprove(spender: string, amount: string): string {
-    const iface = new ethers.Interface([
-        'function approve(address spender, uint256 amount) external',
-    ]);
+    const iface = new ethers.Interface(['function approve(address spender, uint256 amount)']);
     return iface.encodeFunctionData('approve', [spender, amount]);
 }
 
-export function encodeTransfer(recipient: string, amount: string): string {
-    const iface = new ethers.Interface([
-        'function transfer(address recipient, uint256 amount) external',
-    ]);
-    return iface.encodeFunctionData('transfer', [recipient, amount]);
+export function encodeTransfer(to: string, amount: string): string {
+    const iface = new ethers.Interface(['function transfer(address to, uint256 amount)']);
+    return iface.encodeFunctionData('transfer', [to, amount]);
 }

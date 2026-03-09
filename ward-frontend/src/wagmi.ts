@@ -1,18 +1,14 @@
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
-import { http } from 'wagmi';
 import { sepolia } from 'wagmi/chains';
 
-const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID;
+const projectId = process.env.VITE_WALLETCONNECT_PROJECT_ID;
 
 if (!projectId) {
-  throw new Error('Missing VITE_WALLETCONNECT_PROJECT_ID');
+  throw new Error("VITE_WALLETCONNECT_PROJECT_ID is not defined");
 }
 
 export const config = getDefaultConfig({
-  appName: 'WalletGuard',
+  appName: 'Ward',
   projectId,
   chains: [sepolia],
-  transports: {
-    [sepolia.id]: http(import.meta.env.VITE_RPC_URL),
-  },
 });

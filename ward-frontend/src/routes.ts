@@ -1,39 +1,38 @@
+import { API_BASE_URL } from './config';
+
+const B = API_BASE_URL;
+
 export const API = {
   pocket: {
-    create: "/api/pocket/create",
-    get: (address: string) => `/api/pocket/${address}`,
-    assets: (address: string) => `/api/pocket/${address}/assets`,
-    nextNonce: (address: string) => `/api/pocket/${address}/next-nonce`,
-    exec: "/api/pocket/exec",
-    burn: "/api/pocket/burn",
-    sweep: "/api/pocket/sweep",
-    simulate: "/api/pocket/simulate",
-    gas: "/api/pocket/gas",
-    fee: "/api/pocket/fee",
-    listByUser: (user: string) => `/api/pockets/${user}`,
-    decodeCalldata: "/api/calldata/decode"
+    create: `${B}/api/pocket/create`,
+    get: (address: string) => `${B}/api/pocket/${address}`,
+    assets: (address: string) => `${B}/api/pocket/${address}/assets`,
+    nextNonce: (address: string) => `${B}/api/pocket/${address}/next-nonce`,
+    exec: `${B}/api/pocket/exec`,
+    burn: `${B}/api/pocket/burn`,
+    sweep: `${B}/api/pocket/sweep`,
+    simulate: `${B}/api/pocket/simulate`,
+    gas: `${B}/api/pocket/gas`,
+    fee: `${B}/api/pocket/fee`,
+    listByUser: (user: string) => `${B}/api/pockets/${user}`,
+    decodeCalldata: `${B}/api/calldata/decode`,
   },
-
   controller: {
-    pocketInfo: (address: string) => `/api/controller/pocket/${address}`
+    pocketInfo: (address: string) => `${B}/api/controller/pocket/${address}`,
   },
-
   verify: {
-    execIntent: "/api/verify/exec-intent"
+    execIntent: `${B}/api/verify/exec-intent`,
   },
-
   risk: {
-    classify: "/api/risk/classify",
-    simulate: "/api/risk/simulate"
+    classify: `${B}/api/risk/classify`,
+    simulate: `${B}/api/risk/simulate`,
   },
-
   token: {
-    info: (address: string) => `/api/token/${address}`
+    info: (address: string) => `${B}/api/token/${address}`,
   },
-
   meta: {
-    history: (user: string) => `/api/history/${user}`,
-    metrics: "/api/metrics",
-    health: "/api/health"
-  }
+    history: (user: string) => `${B}/api/history/${user}`,
+    metrics: `${B}/api/metrics`,
+    health: `${B}/api/health`,
+  },
 };
